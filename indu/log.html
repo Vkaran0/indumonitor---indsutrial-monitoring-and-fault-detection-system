@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Supabase</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .login-box {
+            background: white;
+            padding: 40px 35px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .login-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo h2 {
+            color: #3f51b5;
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+        
+        .logo p {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #444;
+            font-size: 14px;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background-color: #fafafa;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #3f51b5;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.1);
+        }
+        
+        .input-group input::placeholder {
+            color: #aaa;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #3f51b5 0%, #5c6bc0 100%);
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(63, 81, 181, 0.2);
+        }
+        
+        .login-btn:hover {
+            background: linear-gradient(135deg, #3949ab 0%, #4a5ac0 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(63, 81, 181, 0.25);
+        }
+        
+        .login-btn:active {
+            transform: translateY(0);
+        }
+        
+        .error-message {
+            color: #e53935;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 20px;
+            padding: 12px;
+            background-color: #ffebee;
+            border-radius: 8px;
+            border-left: 4px solid #e53935;
+            display: none;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            color: #777;
+            font-size: 13px;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 40px;
+            background: none;
+            border: none;
+            color: #777;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .password-toggle:hover {
+            color: #3f51b5;
+        }
+        
+        @media (max-width: 480px) {
+            .login-box {
+                padding: 30px 25px;
+            }
+            
+            .logo h2 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="login-box">
+        <div class="logo">
+            <h2>Welcome Back</h2>
+            <p>Sign in to your account</p>
+        </div>
+        
+        <div class="input-group">
+            <label for="username">Username</label>
+            <input id="username" type="text" placeholder="Enter your username" autocomplete="username">
+        </div>
+        
+        <div class="input-group">
+            <label for="password">Password</label>
+            <input id="password" type="password" placeholder="Enter your password" autocomplete="current-password">
+            <button type="button" class="password-toggle" id="togglePassword">Show</button>
+        </div>
+        
+        <button class="login-btn" onclick="login()">Log In</button>
+        
+        <div id="error" class="error-message"></div>
+        
+        <div class="footer">
+            <p>Secure login with Supabase</p>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js";
+
+    // 🔴 YOUR SUPABASE KEYS
+    const SUPABASE_URL = "https://noyfimgffaccelemollp.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5veWZpbWdmZmFjY2VsZW1vbGxwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1MDM1NTMsImV4cCI6MjA4MDA3OTU1M30.xhjHnWFpLxpFVnMStu2kveN4Ch_qtabNT5FUIIAJw7o";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Disable forward/backward navigation
+    history.pushState(null, null, location.href);
+    window.onpopstate = function () {
+        history.go(1);
+    };
+
+    // Password visibility toggle
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        const passwordInput = document.getElementById('password');
+        const toggleButton = document.getElementById('togglePassword');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleButton.textContent = 'Hide';
+        } else {
+            passwordInput.type = 'password';
+            toggleButton.textContent = 'Show';
+        }
+    });
+
+    async function login() {
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+        const error = document.getElementById("error");
+
+        error.style.display = "none";
+        error.textContent = "";
+
+        if (!username || !password) {
+            error.textContent = "Please enter both username and password";
+            error.style.display = "block";
+            return;
+        }
+
+        // Show loading state on button
+        const loginBtn = document.querySelector('.login-btn');
+        const originalText = loginBtn.textContent;
+        loginBtn.textContent = "Logging in...";
+        loginBtn.disabled = true;
+
+        const { data, error: err } = await supabase
+            .from("users")
+            .select("*")
+            .eq("username", username)
+            .eq("password", password)
+            .single();
+
+        loginBtn.textContent = originalText;
+        loginBtn.disabled = false;
+
+        if (err || !data) {
+            error.textContent = "Invalid username or password";
+            error.style.display = "block";
+            
+            // Add shake animation to inputs on error
+            document.getElementById("username").style.borderColor = "#e53935";
+            document.getElementById("password").style.borderColor = "#e53935";
+            
+            setTimeout(() => {
+                document.getElementById("username").style.borderColor = "#e0e0e0";
+                document.getElementById("password").style.borderColor = "#e0e0e0";
+            }, 2000);
+        } else {
+            // Store user data
+            localStorage.setItem("logged_in_user", data.username);
+            localStorage.setItem("login_timestamp", Date.now());
+            
+            // Clear history and redirect to prevent back navigation
+            window.location.replace("dash.html");
+        }
+    }
+
+    // Allow form submission with Enter key
+    document.getElementById("password").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            login();
+        }
+    });
+
+    // Auto-focus on username field
+    document.getElementById("username").focus();
+
+    window.login = login;
+
+</script>
+
+</body>
+</html>

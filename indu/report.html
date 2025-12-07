@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Usage Analytics</title>
+    
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="report.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="header-container">
+            <div class="logo">
+                
+                <h1>Machine Usage Analytics</h1>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-btn" onclick="refreshDashboard()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+                <button class="nav-btn logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <h2><i class="fas fa-chart-line"></i> Industrial Machine Monitoring</h2>
+            <p>Track machine performance, electricity consumption, and maintenance schedules | Last Updated: <span id="last-updated">Just now</span> | <span id="current-time"></span></p>
+        </div>
+        
+        <!-- Connection Status -->
+        <div class="alert alert-success d-flex align-items-center connection-alert" id="connection-alert">
+            <i class="fas fa-wifi me-2"></i>
+            <span id="connection-status">Connecting to Supabase...</span>
+        </div>
+        
+        <!-- Statistics Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="uptime-percentage">--%</h3>
+                    <p>Today's Uptime</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #ff6b6b 0%, #c0392b 100%);">
+                    <i class="fas fa-plug"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="power-consumption">-- kWh</h3>
+                    <p>Power Consumption</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);">
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="electricity-cost">₹--</h3>
+                    <p>Electricity Cost</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f39c12 0%, #d35400 100%);">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="maintenance-days">--</h3>
+                    <p>Days to Maintenance</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Usage Chart -->
+        <div class="chart-container-lg">
+            <h5><i class="fas fa-chart-bar"></i> Machine Usage Timeline (Today)</h5>
+            <canvas id="machineUsageChart"></canvas>
+        </div>
+        
+        <!-- Detailed Information -->
+        <div class="machine-details-grid">
+            <!-- Machine Details -->
+            <div class="detail-card">
+                <h5><i class="fas fa-info-circle"></i> Machine Details</h5>
+                <div class="detail-item">
+                    <span class="detail-label">Machine Name:</span>
+                    <span class="detail-value" id="machine-name">--</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Machine ID:</span>
+                    <span class="detail-value" id="machine-id">--</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Power Rating:</span>
+                    <span class="detail-value" id="power-rating">-- kW</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Voltage Rating:</span>
+                    <span class="detail-value" id="voltage-rating">-- V</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Installation Date:</span>
+                    <span class="detail-value" id="installation-date">--</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Last Service:</span>
+                    <span class="detail-value" id="last-service-date">--</span>
+                </div>
+            </div>
+            
+            <!-- Today's Performance -->
+            <div class="detail-card">
+                <h5><i class="fas fa-chart-line"></i> Today's Performance</h5>
+                <div class="detail-item">
+                    <span class="detail-label">Total Runtime:</span>
+                    <span class="detail-value" id="total-runtime">--</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Total Downtime:</span>
+                    <span class="detail-value" id="total-downtime">--</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Peak Current:</span>
+                    <span class="detail-value" id="peak-current">-- A</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Average Current:</span>
+                    <span class="detail-value" id="avg-current">-- A</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Energy Used:</span>
+                    <span class="detail-value" id="energy-used">-- kWh</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Current Status:</span>
+                    <span class="detail-value"><span id="machine-status" class="badge bg-success">--</span></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Electricity Bill Calculator -->
+        <div class="bill-calculator">
+            <h5><i class="fas fa-file-invoice-dollar"></i> Electricity Bill Calculator</h5>
+            
+            <!-- Rate Inputs -->
+            <div class="rate-inputs">
+                <div class="rate-input-group">
+                    <label for="unit-rate">Unit Rate (₹ per kWh)</label>
+                    <input type="number" id="unit-rate" step="0.01" value="8.50" placeholder="Enter rate per kWh">
+                </div>
+                
+                <div class="rate-input-group">
+                    <label for="fixed-charge">Fixed Monthly Charge (₹)</label>
+                    <input type="number" id="fixed-charge" step="1" value="150" placeholder="Enter fixed charge">
+                </div>
+                
+                <div class="rate-input-group">
+                    <label for="demand-charge">Demand Charge (₹ per kW)</label>
+                    <input type="number" id="demand-charge" step="1" value="300" placeholder="Enter demand charge">
+                </div>
+                
+                <div class="rate-input-group">
+                    <label for="tax-rate">Tax Rate (%)</label>
+                    <input type="number" id="tax-rate" step="0.1" value="18" placeholder="Enter tax percentage">
+                </div>
+            </div>
+            
+            <!-- Date Selection -->
+            <div class="bill-controls">
+                <label>Select Month:</label>
+                <input type="month" id="bill-month" class="date-input" value="2024-12">
+                <button class="calculate-btn" onclick="calculateElectricityBill()">
+                    <i class="fas fa-calculator"></i> Calculate Bill
+                </button>
+                <button class="calculate-btn" style="background: var(--warning-color);" onclick="resetRates()">
+                    <i class="fas fa-redo"></i> Reset Rates
+                </button>
+            </div>
+            
+            <!-- Bill Details -->
+            <div class="bill-details" id="bill-details">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Enter electricity rates and select a month, then click "Calculate Bill"
+                </div>
+            </div>
+        </div>
+        
+        <!-- Maintenance Schedule -->
+        <div class="detail-card">
+            <h5><i class="fas fa-calendar-alt"></i> Maintenance Schedule</h5>
+            <div id="maintenance-alerts">
+                <!-- Maintenance alerts will be loaded here -->
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Loading maintenance data...
+                </div>
+            </div>
+            <div class="bill-controls" style="margin-top: 20px;">
+                <label>Schedule Maintenance:</label>
+                <input type="date" id="maintenance-date" class="date-input">
+                <button class="calculate-btn" onclick="scheduleMaintenance()">
+                    <i class="fas fa-calendar-plus"></i> Schedule
+                </button>
+            </div>
+        </div>
+        
+        <!-- Reports Section -->
+        <div class="report-section">
+            <h5><i class="fas fa-file-alt"></i> Generate Reports</h5>
+            <div class="bill-controls">
+                <label>From:</label>
+                <input type="date" id="report-start-date" class="date-input">
+                <label>To:</label>
+                <input type="date" id="report-end-date" class="date-input">
+            </div>
+            
+            <div class="report-actions">
+                <button class="report-btn" onclick="generateDailyReport()">
+                    <i class="fas fa-file-alt"></i> Daily Report
+                </button>
+                <button class="report-btn" style="background: var(--info-color);" onclick="generateMonthlyReport()">
+                    <i class="fas fa-chart-bar"></i> Monthly Report
+                </button>
+                <button class="report-btn" style="background: var(--danger-color);" onclick="generateMaintenanceReport()">
+                    <i class="fas fa-tools"></i> Maintenance Report
+                </button>
+                <button class="export-btn" onclick="exportToExcel()">
+                    <i class="fas fa-file-excel"></i> Export Excel
+                </button>
+                <button class="export-btn" style="background: var(--purple-color);" onclick="printDashboard()">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
+            
+            <div id="report-output" style="margin-top: 20px;">
+                <!-- Report output will be displayed here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div>
+                    
+                    <p>Powered by Shivatech | Real-time Data Monitoring</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#" onclick="refreshDashboard()"><i class="fas fa-sync-alt"></i> Refresh Data</a>
+                    <a href="#" onclick="showHelp()"><i class="fas fa-question-circle"></i> Help</a>
+                    <a href="#" onclick="showContact()"><i class="fas fa-envelope"></i> Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ==================== CONFIGURATION ====================
+        const SUPABASE_CONFIG = {
+            url: 'https://noyfimgffaccelemollp.supabase.co',
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5veWZpbWdmZmFjY2VsZW1vbGxwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1MDM1NTMsImV4cCI6MjA4MDA3OTU1M30.xhjHnWFpLxpFVnMStu2kveN4Ch_qtabNT5FUIIAJw7o'
+        };
+
+        // Table names
+        const TABLE_NAMES = {
+            readings: 'readings',
+            machine_usage: 'machine_usage',
+            daily_stats: 'daily_stats'
+        };
+
+        // Machine Configuration
+        const MACHINE_CONFIG = {
+            name: "Industrial CNC Machine",
+            id: "CNC-2024-001",
+            powerRating: 15, // kW
+            voltageRating: 415, // V
+            installationDate: "2024-01-15",
+            powerFactor: 0.8,
+            efficiency: 0.85
+        };
+
+        // Maintenance schedule (days between maintenance)
+        const MAINTENANCE_INTERVAL = 90; // days
+
+        // Default electricity rates
+        const DEFAULT_RATES = {
+            unitRate: 8.50, // ₹ per kWh
+            fixedCharge: 150, // Monthly fixed charge
+            demandCharge: 300, // Demand charge per kW
+            taxRate: 18 // 18% GST
+        };
+
+        // ==================== GLOBAL VARIABLES ====================
+        let supabase;
+        let machineUsageChart;
+        let lastUpdateTime = new Date();
+        let maintenanceHistory = [];
+        let machineUsageData = [];
+
+        // Set timezone to IST (India) - UTC+5:30
+        const IST_OFFSET = 5.5 * 60 * 60 * 1000;
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Starting Machine Usage Analytics...');
+            
+            // Initialize Supabase
+            supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+            
+            // Load rates from localStorage
+            loadRates();
+            
+            // Update machine details
+            updateMachineDetails();
+            
+            // Fetch initial data
+            fetchMachineUsageData();
+            
+            // Load maintenance history
+            loadMaintenanceHistory();
+            
+            // Start timers
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 1000);
+            setInterval(updateLastUpdated, 5000);
+            setInterval(fetchMachineUsageData, 30000); // Update every 30 seconds
+            
+            console.log('✅ Machine Analytics initialized successfully!');
+        });
+
+        // ==================== RATE MANAGEMENT ====================
+        function loadRates() {
+            const savedRates = localStorage.getItem('electricityRates');
+            if (savedRates) {
+                const rates = JSON.parse(savedRates);
+                document.getElementById('unit-rate').value = rates.unitRate;
+                document.getElementById('fixed-charge').value = rates.fixedCharge;
+                document.getElementById('demand-charge').value = rates.demandCharge;
+                document.getElementById('tax-rate').value = rates.taxRate;
+            }
+        }
+
+        function saveRates() {
+            const rates = {
+                unitRate: parseFloat(document.getElementById('unit-rate').value) || DEFAULT_RATES.unitRate,
+                fixedCharge: parseFloat(document.getElementById('fixed-charge').value) || DEFAULT_RATES.fixedCharge,
+                demandCharge: parseFloat(document.getElementById('demand-charge').value) || DEFAULT_RATES.demandCharge,
+                taxRate: parseFloat(document.getElementById('tax-rate').value) || DEFAULT_RATES.taxRate
+            };
+            
+            localStorage.setItem('electricityRates', JSON.stringify(rates));
+            return rates;
+        }
+
+        function resetRates() {
+            document.getElementById('unit-rate').value = DEFAULT_RATES.unitRate;
+            document.getElementById('fixed-charge').value = DEFAULT_RATES.fixedCharge;
+            document.getElementById('demand-charge').value = DEFAULT_RATES.demandCharge;
+            document.getElementById('tax-rate').value = DEFAULT_RATES.taxRate;
+            
+            saveRates();
+            alert('Rates reset to default values!');
+        }
+
+        // ==================== MACHINE USAGE FUNCTIONS ====================
+        async function fetchMachineUsageData() {
+            try {
+                // Get today's date in IST
+                const today = new Date();
+                const istToday = new Date(today.getTime() + IST_OFFSET);
+                const todayStr = istToday.toISOString().split('T')[0];
+                
+                // Fetch machine usage data for today
+                const { data, error } = await supabase
+                    .from(TABLE_NAMES.machine_usage)
+                    .select('*')
+                    .gte('start_time', `${todayStr}T00:00:00`)
+                    .lte('start_time', `${todayStr}T23:59:59`)
+                    .order('start_time', { ascending: true });
+                
+                if (error) throw error;
+                
+                machineUsageData = data || [];
+                
+                // Calculate statistics
+                await calculateMachineStatistics(data);
+                
+                // Update machine usage chart
+                updateMachineUsageChart(data);
+                
+                // Update connection status
+                document.getElementById('connection-status').textContent = 'Connected to Supabase | Real-time updates active';
+                document.getElementById('connection-alert').className = 'alert alert-success d-flex align-items-center connection-alert';
+                
+            } catch (error) {
+                console.error('Error fetching machine usage data:', error);
+                document.getElementById('connection-status').textContent = 'Error connecting to Supabase | Check console';
+                document.getElementById('connection-alert').className = 'alert alert-danger d-flex align-items-center connection-alert';
+            }
+        }
+
+        async function calculateMachineStatistics(data) {
+            const now = new Date();
+            let totalRuntime = 0;
+            let peakCurrent = 0;
+            let totalEnergy = 0;
+            let isCurrentlyRunning = false;
+            
+            // Calculate runtime from usage records
+            if (data && data.length > 0) {
+                data.forEach(record => {
+                    const start = new Date(record.start_time);
+                    const end = record.end_time ? new Date(record.end_time) : now;
+                    const duration = (end - start) / 1000; // seconds
+                    
+                    totalRuntime += duration;
+                    
+                    // Check if machine is currently running
+                    if (!record.end_time) {
+                        isCurrentlyRunning = true;
+                    }
+                });
+                
+                // Fetch current readings for energy calculation
+                const currentData = await fetchCurrentReadings();
+                if (currentData && currentData.length > 0) {
+                    let totalCurrent = 0;
+                    
+                    currentData.forEach(reading => {
+                        const current = reading.current || 0;
+                        totalCurrent += current;
+                        if (current > peakCurrent) peakCurrent = current;
+                    });
+                    
+                    const avgCurrent = totalCurrent / currentData.length;
+                    
+                    // Calculate energy consumption (kWh)
+                    // Energy (kWh) = (Power in kW × Time in hours)
+                    // Power (kW) = (Voltage × Current × Power Factor) / 1000
+                    const voltage = MACHINE_CONFIG.voltageRating;
+                    const powerFactor = MACHINE_CONFIG.powerFactor;
+                    const runtimeHours = totalRuntime / 3600;
+                    const powerKW = (voltage * avgCurrent * powerFactor) / 1000;
+                    totalEnergy = (powerKW * runtimeHours * MACHINE_CONFIG.efficiency).toFixed(2);
+                    
+                    // Update current statistics
+                    document.getElementById('peak-current').textContent = `${peakCurrent.toFixed(2)} A`;
+                    document.getElementById('avg-current').textContent = `${avgCurrent.toFixed(2)} A`;
+                }
+            }
+            
+            // Calculate downtime (24 hours - runtime)
+            const totalDowntime = totalRuntime > 0 ? (24 * 3600) - totalRuntime : 24 * 3600;
+            
+            // Calculate uptime percentage
+            const uptimePercentage = totalRuntime > 0 ? ((totalRuntime / (24 * 3600)) * 100).toFixed(1) : "0";
+            
+            // Calculate electricity cost using current rates
+            const rates = saveRates();
+            const electricityCost = (totalEnergy * rates.unitRate).toFixed(2);
+            
+            // Update UI
+            document.getElementById('uptime-percentage').textContent = `${uptimePercentage}%`;
+            document.getElementById('total-runtime').textContent = formatDuration(totalRuntime);
+            document.getElementById('total-downtime').textContent = formatDuration(totalDowntime);
+            document.getElementById('energy-used').textContent = `${totalEnergy} kWh`;
+            document.getElementById('power-consumption').textContent = `${totalEnergy} kWh`;
+            document.getElementById('electricity-cost').textContent = `₹${electricityCost}`;
+            
+            // Update machine status
+            const statusElement = document.getElementById('machine-status');
+            if (isCurrentlyRunning) {
+                statusElement.textContent = 'RUNNING';
+                statusElement.className = 'badge bg-success';
+            } else if (data && data.length > 0) {
+                statusElement.textContent = 'IDLE';
+                statusElement.className = 'badge bg-warning';
+            } else {
+                statusElement.textContent = 'OFFLINE';
+                statusElement.className = 'badge bg-secondary';
+            }
+        }
+
+        async function fetchCurrentReadings() {
+            try {
+                // Get today's date
+                const today = new Date();
+                const todayStr = today.toISOString().split('T')[0];
+                
+                const { data, error } = await supabase
+                    .from(TABLE_NAMES.readings)
+                    .select('current, created_at')
+                    .gte('created_at', `${todayStr}T00:00:00`)
+                    .lte('created_at', `${todayStr}T23:59:59`)
+                    .order('created_at', { ascending: true });
+                
+                return data || [];
+            } catch (error) {
+                console.error('Error fetching current readings:', error);
+                return [];
+            }
+        }
+
+        function updateMachineUsageChart(data) {
+            const ctx = document.getElementById('machineUsageChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (machineUsageChart) {
+                machineUsageChart.destroy();
+            }
+            
+            if (!data || data.length === 0) {
+                // Create empty chart
+                machineUsageChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['00:00', '06:00', '12:00', '18:00', '23:59'],
+                        datasets: [{
+                            label: 'Machine Status (No data today)',
+                            data: [0, 0, 0, 0, 0],
+                            borderColor: '#ccc',
+                            backgroundColor: '#f8f9fa',
+                            borderWidth: 1,
+                            fill: true,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Time of Day'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Status'
+                                },
+                                min: 0,
+                                max: 1,
+                                ticks: {
+                                    stepSize: 1,
+                                    callback: function(value) {
+                                        return value === 1 ? 'Running' : 'Stopped';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                return;
+            }
+            
+            // Prepare data for chart - create hourly buckets
+            const hourlyData = Array(24).fill(0);
+            
+            data.forEach(record => {
+                const start = new Date(record.start_time);
+                const end = record.end_time ? new Date(record.end_time) : new Date();
+                
+                const startHour = start.getHours();
+                const endHour = end.getHours();
+                
+                // Mark hours when machine was running
+                for (let hour = startHour; hour <= endHour && hour < 24; hour++) {
+                    hourlyData[hour] = 1;
+                }
+            });
+            
+            // Create labels for all hours
+            const labels = [];
+            for (let hour = 0; hour < 24; hour++) {
+                labels.push(`${hour.toString().padStart(2, '0')}:00`);
+            }
+            
+            // Create chart
+            machineUsageChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Machine Status (1=Running, 0=Stopped)',
+                        data: hourlyData,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time of Day'
+                            },
+                            ticks: {
+                                maxTicksLimit: 12
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Machine Status'
+                            },
+                            min: 0,
+                            max: 1,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    return value === 1 ? 'Running' : 'Stopped';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function calculateElectricityBill() {
+            try {
+                const monthInput = document.getElementById('bill-month').value;
+                if (!monthInput) {
+                    alert('Please select a month');
+                    return;
+                }
+                
+                // Get rates from inputs
+                const rates = saveRates();
+                
+                // Validate rates
+                if (!rates.unitRate || rates.unitRate <= 0) {
+                    alert('Please enter a valid unit rate (₹ per kWh)');
+                    return;
+                }
+                
+                const [year, month] = monthInput.split('-');
+                const startDate = `${year}-${month}-01`;
+                const lastDay = new Date(year, month, 0).getDate();
+                const endDate = `${year}-${month}-${lastDay}`;
+                
+                // Show loading
+                document.getElementById('bill-details').innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="fas fa-spinner fa-spin"></i> Calculating bill for ${month}/${year}...
+                    </div>
+                `;
+                
+                // Fetch machine usage for the month
+                const { data: usageData, error: usageError } = await supabase
+                    .from(TABLE_NAMES.machine_usage)
+                    .select('*')
+                    .gte('start_time', `${startDate}T00:00:00`)
+                    .lte('start_time', `${endDate}T23:59:59`)
+                    .order('start_time', { ascending: true });
+                
+                if (usageError) throw usageError;
+                
+                // Fetch current readings for the month
+                const { data: currentData, error: currentError } = await supabase
+                    .from(TABLE_NAMES.readings)
+                    .select('current, created_at')
+                    .gte('created_at', `${startDate}T00:00:00`)
+                    .lte('created_at', `${endDate}T23:59:59`)
+                    .order('created_at', { ascending: true });
+                
+                if (currentError) throw currentError;
+                
+                // Calculate total runtime for the month
+                let totalRuntimeSeconds = 0;
+                let peakDemand = 0;
+                
+                if (usageData && usageData.length > 0) {
+                    usageData.forEach(record => {
+                        const start = new Date(record.start_time);
+                        const end = record.end_time ? new Date(record.end_time) : new Date();
+                        const duration = (end - start) / 1000;
+                        totalRuntimeSeconds += duration;
+                    });
+                }
+                
+                // Calculate average current and peak demand
+                let totalCurrent = 0;
+                let currentReadings = 0;
+                if (currentData && currentData.length > 0) {
+                    currentData.forEach(reading => {
+                        const current = reading.current || 0;
+                        totalCurrent += current;
+                        currentReadings++;
+                        if (current > peakDemand) peakDemand = current;
+                    });
+                }
+                
+                const avgCurrent = currentReadings > 0 ? totalCurrent / currentReadings : 0;
+                const runtimeHours = totalRuntimeSeconds / 3600;
+                
+                // Calculate energy consumption
+                const voltage = MACHINE_CONFIG.voltageRating;
+                const powerFactor = MACHINE_CONFIG.powerFactor;
+                const powerKW = (voltage * avgCurrent * powerFactor) / 1000;
+                const totalEnergy = (powerKW * runtimeHours * MACHINE_CONFIG.efficiency).toFixed(2);
+                
+                // Calculate bill components using user-entered rates
+                const energyCharge = (totalEnergy * rates.unitRate).toFixed(2);
+                const fixedCharge = rates.fixedCharge;
+                const demandChargeKW = (peakDemand * voltage) / 1000;
+                const demandCharge = (demandChargeKW * rates.demandCharge).toFixed(2);
+                const subtotal = (parseFloat(energyCharge) + parseFloat(fixedCharge) + parseFloat(demandCharge)).toFixed(2);
+                const tax = (parseFloat(subtotal) * (rates.taxRate / 100)).toFixed(2);
+                const totalBill = (parseFloat(subtotal) + parseFloat(tax)).toFixed(2);
+                
+                // Update UI with detailed bill
+                const billHTML = `
+                    <div class="alert alert-success">
+                        <h6><i class="fas fa-file-invoice"></i> Electricity Bill for ${getMonthName(month)} ${year}</h6>
+                        <p>Based on ${currentReadings} current readings and ${usageData ? usageData.length : 0} usage records</p>
+                    </div>
+                    
+                    <div class="bill-item">
+                        <span>Total Runtime:</span>
+                        <span><strong>${formatDuration(totalRuntimeSeconds)}</strong></span>
+                    </div>
+                    <div class="bill-item">
+                        <span>Energy Consumption:</span>
+                        <span>${totalEnergy} kWh</span>
+                    </div>
+                    <div class="bill-item">
+                        <span>Peak Demand:</span>
+                        <span>${peakDemand.toFixed(2)} A (${demandChargeKW.toFixed(2)} kW)</span>
+                    </div>
+                    
+                    <div class="bill-item" style="border-top: 2px solid #dee2e6; padding-top: 15px;">
+                        <span><strong>Energy Charge (₹${rates.unitRate}/kWh):</strong></span>
+                        <span><strong>₹${energyCharge}</strong></span>
+                    </div>
+                    <div class="bill-item">
+                        <span>Fixed Monthly Charge:</span>
+                        <span>₹${fixedCharge}</span>
+                    </div>
+                    <div class="bill-item">
+                        <span>Demand Charge (₹${rates.demandCharge}/kW):</span>
+                        <span>₹${demandCharge}</span>
+                    </div>
+                    <div class="bill-item">
+                        <span>Subtotal:</span>
+                        <span>₹${subtotal}</span>
+                    </div>
+                    <div class="bill-item">
+                        <span>GST (${rates.taxRate}%):</span>
+                        <span>₹${tax}</span>
+                    </div>
+                    
+                    <div class="bill-total">
+                        <span><strong>TOTAL ELECTRICITY BILL:</strong></span>
+                        <span style="color: #e74c3c; font-size: 1.3rem;"><strong>₹${totalBill}</strong></span>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i> 
+                            Calculation parameters: ${voltage}V supply, power factor ${powerFactor}, machine efficiency ${MACHINE_CONFIG.efficiency}
+                        </small>
+                    </div>
+                `;
+                
+                document.getElementById('bill-details').innerHTML = billHTML;
+                
+            } catch (error) {
+                console.error('Error calculating electricity bill:', error);
+                document.getElementById('bill-details').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        Error calculating bill: ${error.message || 'Please check your internet connection and try again'}
+                    </div>
+                `;
+            }
+        }
+
+        function getMonthName(month) {
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                          'July', 'August', 'September', 'October', 'November', 'December'];
+            return months[parseInt(month) - 1];
+        }
+
+        function updateMachineDetails() {
+            document.getElementById('machine-name').textContent = MACHINE_CONFIG.name;
+            document.getElementById('machine-id').textContent = MACHINE_CONFIG.id;
+            document.getElementById('power-rating').textContent = `${MACHINE_CONFIG.powerRating} kW`;
+            document.getElementById('voltage-rating').textContent = `${MACHINE_CONFIG.voltageRating} V`;
+            document.getElementById('installation-date').textContent = formatDate(new Date(MACHINE_CONFIG.installationDate));
+        }
+
+        async function loadMaintenanceHistory() {
+            try {
+                // Try to fetch from daily_stats table first
+                const { data: statsData, error: statsError } = await supabase
+                    .from('daily_stats')
+                    .select('*')
+                    .order('date', { ascending: false })
+                    .limit(10);
+                
+                if (!statsError && statsData) {
+                    // Convert stats to maintenance history
+                    maintenanceHistory = statsData.map(stat => ({
+                        date: stat.date,
+                        type: 'operational',
+                        description: `Daily operation - ${formatDuration((stat.total_runtime || 0) * 3600)} runtime`,
+                        cost: null
+                    }));
+                } else {
+                    // Fallback to localStorage
+                    const savedHistory = localStorage.getItem('machineMaintenanceHistory');
+                    if (savedHistory) {
+                        maintenanceHistory = JSON.parse(savedHistory);
+                    }
+                }
+                
+                updateMaintenanceAlerts();
+                
+            } catch (error) {
+                console.error('Error loading maintenance history:', error);
+                // Use localStorage as fallback
+                const savedHistory = localStorage.getItem('machineMaintenanceHistory');
+                if (savedHistory) {
+                    maintenanceHistory = JSON.parse(savedHistory);
+                    updateMaintenanceAlerts();
+                }
+            }
+        }
+
+        function updateMaintenanceAlerts() {
+            const container = document.getElementById('maintenance-alerts');
+            
+            if (!maintenanceHistory || maintenanceHistory.length === 0) {
+                container.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> No maintenance records found. Schedule your first maintenance.
+                    </div>
+                `;
+                document.getElementById('last-service-date').textContent = 'Never';
+                document.getElementById('maintenance-days').textContent = '--';
+                return;
+            }
+            
+            // Sort by date (most recent first)
+            maintenanceHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            const lastService = maintenanceHistory[0];
+            const lastServiceDate = new Date(lastService.date);
+            const nextServiceDate = new Date(lastServiceDate.getTime() + (MAINTENANCE_INTERVAL * 24 * 60 * 60 * 1000));
+            const today = new Date();
+            const daysToMaintenance = Math.ceil((nextServiceDate - today) / (1000 * 60 * 60 * 24));
+            
+            // Update UI
+            document.getElementById('last-service-date').textContent = formatDate(lastServiceDate);
+            document.getElementById('maintenance-days').textContent = daysToMaintenance;
+            
+            let alertHTML = '';
+            
+            if (daysToMaintenance <= 0) {
+                alertHTML = `
+                    <div class="maintenance-alert">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        <div>
+                            <h6 class="mb-1">URGENT: Maintenance Overdue!</h6>
+                            <p class="mb-0">Machine maintenance is overdue by ${Math.abs(daysToMaintenance)} days. Schedule immediately!</p>
+                        </div>
+                    </div>
+                `;
+            } else if (daysToMaintenance <= 7) {
+                alertHTML = `
+                    <div class="maintenance-alert" style="background: linear-gradient(135deg, #f39c12 0%, #d35400 100%);">
+                        <i class="fas fa-exclamation-circle fa-2x"></i>
+                        <div>
+                            <h6 class="mb-1">Upcoming Maintenance</h6>
+                            <p class="mb-0">Next maintenance due in ${daysToMaintenance} days (${formatDate(nextServiceDate)})</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                alertHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> Next maintenance scheduled for ${formatDate(nextServiceDate)} (in ${daysToMaintenance} days)
+                    </div>
+                `;
+            }
+            
+            // Add maintenance history
+            alertHTML += `
+                <div class="mt-3">
+                    <h6>Recent Maintenance History</h6>
+                    <div style="max-height: 200px; overflow-y: auto;">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+            
+            maintenanceHistory.slice(0, 5).forEach(record => {
+                alertHTML += `
+                    <tr>
+                        <td>${formatDate(new Date(record.date))}</td>
+                        <td><span class="badge ${record.type === 'preventive' ? 'bg-info' : 'bg-secondary'}">${record.type}</span></td>
+                        <td>${record.description || 'Maintenance'}</td>
+                    </tr>
+                `;
+            });
+            
+            alertHTML += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = alertHTML;
+        }
+
+        function scheduleMaintenance() {
+            const dateInput = document.getElementById('maintenance-date').value;
+            if (!dateInput) {
+                alert('Please select a date');
+                return;
+            }
+            
+            const newMaintenance = {
+                date: dateInput,
+                type: 'preventive',
+                description: 'Scheduled preventive maintenance',
+                cost: null
+            };
+            
+            maintenanceHistory.unshift(newMaintenance);
+            localStorage.setItem('machineMaintenanceHistory', JSON.stringify(maintenanceHistory));
+            
+            updateMaintenanceAlerts();
+            alert('Maintenance scheduled successfully!');
+            
+            // Clear input
+            document.getElementById('maintenance-date').value = '';
+        }
+
+        function generateDailyReport() {
+            const startDate = document.getElementById('report-start-date').value;
+            const endDate = document.getElementById('report-end-date').value;
+            
+            if (!startDate || !endDate) {
+                alert('Please select both start and end dates');
+                return;
+            }
+            
+            const reportHTML = `
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-file-alt"></i> Daily Report Generated</h6>
+                    <p>Date Range: ${formatDate(new Date(startDate))} to ${formatDate(new Date(endDate))}</p>
+                    <p>Report includes: Machine runtime, energy consumption, and performance metrics.</p>
+                    <button class="btn btn-sm btn-success mt-2" onclick="downloadReport('daily')">
+                        <i class="fas fa-download"></i> Download PDF
+                    </button>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h6>Machine Performance</h6>
+                        <div class="detail-item">
+                            <span>Total Runtime:</span>
+                            <span>${document.getElementById('total-runtime').textContent}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Uptime Percentage:</span>
+                            <span>${document.getElementById('uptime-percentage').textContent}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Energy Consumed:</span>
+                            <span>${document.getElementById('energy-used').textContent}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Electrical Parameters</h6>
+                        <div class="detail-item">
+                            <span>Peak Current:</span>
+                            <span>${document.getElementById('peak-current').textContent}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Average Current:</span>
+                            <span>${document.getElementById('avg-current').textContent}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Electricity Cost:</span>
+                            <span>${document.getElementById('electricity-cost').textContent}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('report-output').innerHTML = reportHTML;
+        }
+
+        function generateMonthlyReport() {
+            const reportHTML = `
+                <div class="alert alert-success">
+                    <h6><i class="fas fa-chart-bar"></i> Monthly Report Generated</h6>
+                    <p>Report includes: Monthly energy consumption, cost analysis, machine utilization, and maintenance recommendations.</p>
+                    <button class="btn btn-sm btn-success mt-2" onclick="downloadReport('monthly')">
+                        <i class="fas fa-download"></i> Download PDF
+                    </button>
+                </div>
+                <div class="mt-3">
+                    <h6>Monthly Summary</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <span>Estimated Monthly Runtime:</span>
+                                <span>${calculateMonthlyRuntime()} hours</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>Estimated Energy Usage:</span>
+                                <span>${calculateMonthlyEnergy()} kWh</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <span>Estimated Monthly Cost:</span>
+                                <span>₹${calculateMonthlyCost()}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>Machine Efficiency:</span>
+                                <span>${MACHINE_CONFIG.efficiency * 100}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('report-output').innerHTML = reportHTML;
+        }
+
+        function generateMaintenanceReport() {
+            const reportHTML = `
+                <div class="alert alert-warning">
+                    <h6><i class="fas fa-tools"></i> Maintenance Report Generated</h6>
+                    <p>Report includes: Maintenance history, upcoming schedules, and maintenance recommendations.</p>
+                    <button class="btn btn-sm btn-success mt-2" onclick="downloadReport('maintenance')">
+                        <i class="fas fa-download"></i> Download PDF
+                    </button>
+                </div>
+                <div class="mt-3">
+                    <h6>Maintenance Summary</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <span>Last Maintenance:</span>
+                                <span>${document.getElementById('last-service-date').textContent}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>Next Maintenance Due:</span>
+                                <span>In ${document.getElementById('maintenance-days').textContent} days</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <span>Maintenance Frequency:</span>
+                                <span>Every ${MAINTENANCE_INTERVAL} days</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>Total Maintenance Records:</span>
+                                <span>${maintenanceHistory.length}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('report-output').innerHTML = reportHTML;
+        }
+
+        function calculateMonthlyRuntime() {
+            const runtime = document.getElementById('total-runtime').textContent;
+            if (runtime === '--') return '--';
+            const hours = parseInt(runtime.split('h')[0]);
+            return (hours * 30).toFixed(0); // Estimate for 30 days
+        }
+
+        function calculateMonthlyEnergy() {
+            const energy = document.getElementById('energy-used').textContent;
+            if (energy === '--') return '--';
+            const kWh = parseFloat(energy.split(' ')[0]);
+            return (kWh * 30).toFixed(0); // Estimate for 30 days
+        }
+
+        function calculateMonthlyCost() {
+            const cost = document.getElementById('electricity-cost').textContent;
+            if (cost === '₹--') return '--';
+            const amount = parseFloat(cost.replace('₹', ''));
+            return (amount * 30).toFixed(0); // Estimate for 30 days
+        }
+
+        function downloadReport(type) {
+            const element = document.createElement('a');
+            const content = `
+                MACHINE USAGE REPORT - ${type.toUpperCase()}
+                Generated: ${new Date().toLocaleString('en-IN')}
+                
+                MACHINE DETAILS:
+                =================
+                Name: ${MACHINE_CONFIG.name}
+                ID: ${MACHINE_CONFIG.id}
+                Power Rating: ${MACHINE_CONFIG.powerRating} kW
+                Voltage: ${MACHINE_CONFIG.voltageRating} V
+                Installation: ${MACHINE_CONFIG.installationDate}
+                
+                TODAY'S STATISTICS:
+                ===================
+                Uptime: ${document.getElementById('uptime-percentage').textContent}
+                Runtime: ${document.getElementById('total-runtime').textContent}
+                Energy: ${document.getElementById('energy-used').textContent}
+                Cost: ${document.getElementById('electricity-cost').textContent}
+                
+                ELECTRICITY RATES:
+                ==================
+                Unit Rate: ₹${document.getElementById('unit-rate').value} per kWh
+                Fixed Charge: ₹${document.getElementById('fixed-charge').value}
+                Demand Charge: ₹${document.getElementById('demand-charge').value} per kW
+                Tax Rate: ${document.getElementById('tax-rate').value}%
+                
+                MAINTENANCE:
+                ============
+                Last Service: ${document.getElementById('last-service-date').textContent}
+                Next Due: In ${document.getElementById('maintenance-days').textContent} days
+                
+                Generated by Machine Usage Analytics System
+                https://noyfimgffaccelemollp.supabase.co
+            `;
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            element.href = URL.createObjectURL(blob);
+            element.download = `machine-report-${type}-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+
+        function exportToExcel() {
+            alert('Exporting data to Excel...\nThis would generate an Excel file with all machine usage data from your database.');
+        }
+
+        function printDashboard() {
+            window.print();
+        }
+
+        function refreshDashboard() {
+            fetchMachineUsageData();
+            loadMaintenanceHistory();
+            document.getElementById('last-updated').textContent = 'Just now';
+            lastUpdateTime = new Date();
+            alert('Dashboard data refreshed!');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.close();
+            }
+        }
+
+        function showHelp() {
+            alert('Machine Usage Analytics Help:\n\n1. Electricity Bill Calculator:\n   - Enter rates in the input fields\n   - Select month and click Calculate\n\n2. Maintenance:\n   - Schedule maintenance using date picker\n\n3. Reports:\n   - Select date range for reports\n   - Click report type buttons\n\n4. Data refreshes automatically every 30 seconds');
+        }
+
+        function showContact() {
+            alert('Contact Support:\n\nEmail: kshitijups2@gmail.com\nPhone: +91 7007033750\n\nFor database issues:\n');
+        }
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function formatDuration(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            return `${hours}h ${minutes}m`;
+        }
+
+        function formatDate(date) {
+            return date.toLocaleDateString('en-IN', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        function updateCurrentTime() {
+            const now = new Date();
+            const istTime = new Date(now.getTime() + IST_OFFSET);
+            
+            const timeStr = istTime.toLocaleTimeString('en-IN', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: false
+            });
+            
+            const dateStr = istTime.toLocaleDateString('en-IN', {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+            
+            document.getElementById('current-time').textContent = `${dateStr} ${timeStr} IST`;
+        }
+
+        function updateLastUpdated() {
+            const now = new Date();
+            const diff = Math.floor((now - lastUpdateTime) / 1000);
+            
+            let text = 'Just now';
+            if (diff >= 60) {
+                const minutes = Math.floor(diff / 60);
+                text = `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+            }
+            
+            document.getElementById('last-updated').textContent = text;
+        }
+    </script>
+</body>
+</html>

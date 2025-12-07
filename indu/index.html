@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INDUMONITOR: Smart Monitoring for Smarter Machines</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+
+    <!-- Alert Banner -->
+    <div class="alert-banner">
+        <div class="container">
+            <i class="fas fa-bolt"></i> INDUMONITOR: The dual intelligence system keeping your industrial assets online and optimized.
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-bar">
+               <a href="#" class="logo">
+                    <img src="gemini-removebg-preview.png" alt="INDUMONITOR Logo">
+                    INDUMONITOR
+                </a>
+                
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <nav class="nav-links" id="navLinks">
+                    <a href="#features">Features</a>
+                    <a href="#technology">Technology</a>
+                    <a href="#how-it-works">How To Use</a>
+                    <a href="#impact">Impact</a>
+                    <a href="#contact">Contact Us</a>
+                    <a href="log.html" class="cta-button login-btn">Dashboard Login</a> 
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="container">
+            <h1>Smart Monitoring for Smarter Machines</h1>
+            <p>A dual-part IoT system integrated with AI-based analytics to predict faults before they occur and prevent costly breakdowns in industrial environments.</p>
+            <a href="#features" class="cta-button">View Live Demo <i class="fas fa-arrow-right"></i></a>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number">99.5%</span>
+                    <span class="stat-label">System Uptime</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">40%</span>
+                    <span class="stat-label">Cost Reduction</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">60%</span>
+                    <span class="stat-label">Faster Detection</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">24/7</span>
+                    <span class="stat-label">Monitoring</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Key Features & Proactive Reliability</h2>
+            <p class="section-subtitle">Monitor all your industrial equipment with our comprehensive dashboard that provides real-time insights and predictive analytics</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                         alt="Real-Time Industrial Monitoring Dashboard" 
+                         class="realistic-image">
+                    <h3>Real-Time Health Tracking</h3>
+                    <p>Monitor all equipment under one dashboard. Detect faults, malfunctions, or unsafe usage patterns instantly with comprehensive visualizations.</p>
+                </div>
+
+                
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-power-off"></i>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                         alt="Safety Shutdown Mechanism" 
+                         class="realistic-image">
+                    <h3>Automatic Safety Shutdown</h3>
+                    <p>If a critical fault is detected, the system automatically turns off the main power supply through relay overload until the issue is resolved.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                         alt="Financial Cost and Efficiency Chart" 
+                         class="realistic-image">
+                    <h3>Cost & Energy Efficiency</h3>
+                    <p>Reduces repair and replacement costs while minimizing production losses due to unexpected machine downtime through intelligent optimization.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Technology Stack Section -->
+    <section id="technology" class="technology">
+        <div class="container">
+            <h2 class="section-title" style="text-align: center; color: var(--secondary-dark);">Our Robust Technology Stack</h2>
+            <p class="section-subtitle" style="text-align: center;">The system operates on four key layers: Device, Communication, Backend, and Frontend for comprehensive monitoring.</p>
+            
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <h4><span style="color: var(--primary-yellow);">1.</span> Device Layer (Sensors)</h4>
+                    <ul>
+                        <li>Part-1 Module: Measures electrical health (Current, Voltage) using ACS712 and ZMPT101B sensors</li>
+                        <li>Part-2 Module: Monitors environmental/mechanical health (Temperature, Vibration, Humidity) using DS18B20 and MPU6050/SW-420</li>
+                        <li>Secure device identification and authentication</li>
+                    </ul>
+                </div>
+
+                <div class="tech-card">
+                    <h4><span style="color: var(--primary-yellow);">2.</span> Communication & Local Node</h4>
+                    <ul>
+                        <li>Wireless Data Transmission: NRF24L01 modules send data wirelessly to the ESP32 controller</li>
+                        <li>Local Processing Unit (ESP32): Receives data, verifies unique IDs, and uploads readings to the cloud via Wi-Fi</li>
+                        <li>Secure communication protocols</li>
+                    </ul>
+                </div>
+                
+                <div class="tech-card">
+                    <h4><span style="color: var(--primary-yellow);">3.</span> Backend & AI Platform</h4>
+                    <ul>
+                        <li>Cloud Database: Utilizes Supabase and Firebase for secure, scalable data storage</li>
+                        
+                        <li>Historical data analysis and trend identification</li>
+                    </ul>
+                </div>
+                
+                <div class="tech-card">
+                    <h4><span style="color: var(--primary-yellow);">4.</span> Frontend Dashboard</h4>
+                    <ul>
+                        <li>Interactive Visualization: HTML/CSS/JavaScript for responsive frontend interface</li>
+                        <li>Multi-Role Access: Dedicated dashboards for operators, lab managers, and policy makers</li>
+                        <li>Real-time alerts and notifications</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How INDUMONITOR Works: Step-by-Step Flow</h2>
+            <p class="section-subtitle">From sensor data collection to final action taken, follow the journey of your machine's health data through our intelligent system</p>
+            
+            <div class="steps-container">
+                <div class="timeline"></div>
+                
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-content">
+                            <div class="step-number">1</div>
+                            <h4>Data Acquisition (Sensors)</h4>
+                            <p>The Part-1 (Electrical) and Part-2 (Mechanical) modules continuously measure critical parameters like Voltage, Current, Temperature, and Vibration.</p>
+                            <div class="step-highlight">
+                                <p><strong>Example Data:</strong> 225V, 5.2A, 45°C, 3g Vibration</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-item">
+                        <div class="step-content">
+                            <div class="step-number">2</div>
+                            <h4>Local Data Transmission & Upload</h4>
+                            <p>Sensor data is sent wirelessly to the ESP32 Controller which aggregates, packages, and uploads this data to the secure Cloud Database.</p>
+                            <div class="step-highlight">
+                                <p><strong>Action:</strong> Data is transferred via Wi-Fi/MQTT protocol with encryption</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    <div class="step-item">
+                        <div class="step-content">
+                            <div class="step-number">3</div>
+                            <h4>Real-Time Dashboard & Alert</h4>
+                            <p>The analyzed data and Fault Prediction are instantly pushed to the Frontend Dashboard. Users receive Visual Alerts and SMS/Email Notifications for critical issues.</p>
+                            <div class="step-highlight">
+                                <p><strong>User View:</strong> Machine 'Motor-A' is predicted to fail in 3 days</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-item">
+                        <div class="step-content">
+                            <div class="step-number">4</div>
+                            <h4>Automatic Safety Action</h4>
+                            <p>If the AI model detects a Critical Fault (e.g., severe over-current), the system sends a direct signal back to the machine's local relay system.</p>
+                            <div class="step-highlight">
+                                <p><strong>Safety Protocol:</strong> The power supply is automatically shut down to prevent irreversible damage and ensure worker safety</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-item">
+                        <div class="step-content">
+                            <div class="step-number">5</div>
+                            <h4>Maintenance & Optimization</h4>
+                            <p>The maintenance team can now perform Scheduled, Targeted Repairs based on the predictive warning, rather than reacting to a failure.</p>
+                            <div class="step-highlight">
+                                <p><strong>Final Outcome:</strong> Increased Uptime, Reduced Costs, and Prolonged Asset Lifespan</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="final-summary">
+                <p>
+                    You can check your machine health, efficiency, performance trends, utilization rate, and more, according to the real-time data and predictive analytics provided by INDUMONITOR.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Impact Section -->
+    <section id="impact" class="impact">
+        <div class="container">
+            <h2 class="section-title">Transforming Industrial Operations: Our Impact</h2>
+            <div class="impact-grid">
+                
+                <div class="impact-card">
+                    <div class="impact-icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <h4>Increased Uptime</h4>
+                    <p>Predictive maintenance reduces unexpected failures, leading to significant improvement in machine availability and production hours.</p>
+                </div>
+                
+                <div class="impact-card">
+                    <div class="impact-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <h4>Reduced Maintenance Costs</h4>
+                    <p>Early fault detection minimizes the need for expensive emergency repairs and reduces overall spare parts usage by up to 40%.</p>
+                </div>
+                
+                <div class="impact-card">
+                    <div class="impact-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h4>Enhanced Worker Safety</h4>
+                    <p>Automatic shutdown on critical fault detection and continuous monitoring of environmental factors ensure a safer working environment.</p>
+                </div>
+                
+                <div class="impact-card">
+                    <div class="impact-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h4>Optimized Energy Use</h4>
+                    <p>Real-time data identifies inefficient usage patterns, allowing for better energy consumption optimization and lower utility bills.</p>
+                </div>
+                
+                <div class="impact-card">
+                    <div class="impact-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h4>Data-Driven Decisions</h4>
+                    <p>Providing policy makers and managers with historical data and analytics for smarter future resource allocation and investment.</p>
+                </div>
+                
+                <div class="impact-card">
+                    <div class="impact-icon">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </div>
+                    <h4>Extended Asset Lifespan</h4>
+                    <p>By operating machines within optimal parameters and catching issues early, the service life of industrial equipment is significantly prolonged.</p>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+    
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2 class="section-title">Connect With Our Team</h2>
+            <p class="section-subtitle">We're here to help you revolutionize your industrial monitoring and maintenance processes</p>
+            
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <h4>General Queries</h4>
+                    <p>For project details, pricing, and collaboration opportunities:</p>
+                    <a href="mailto:kshitijups2@gmail.com">kshitijups2@gmail.com</a>
+                </div>
+
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h4>Technical Support</h4>
+                    <p>For setup, deployment, and technical assistance:</p>
+                    <a href="mailto:kshitijups2@gmail.com">kshitijups2@gmail.com</a>
+                </div>
+
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <h4>Call Us</h4>
+                    <p>Reach our team during business hours (9 AM - 6 PM IST):</p>
+                    <a href="tel:+917007033750">+91 7007033750</a>
+                </div>
+                
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h4>Office Address</h4>
+                    <p>Rajatalab, Varanasi</p>
+                    <p>Uttar Pradesh, India - 221307</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <div class="footer-logo">
+                        <img src="gemini-removebg-preview.png" alt="INDUMONITOR Logo">
+                        INDUMONITOR
+                    </div>
+                    <p>A dual-part IoT system integrated with AI-based analytics to predict faults before they occur and prevent costly breakdowns in industrial environments.</p>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#technology">Technology</a></li>
+                        <li><a href="#how-it-works">How It Works</a></li>
+                        <li><a href="#impact">Impact</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-contact">
+                    <h4>Contact Information</h4>
+                    <p><i class="fas fa-envelope"></i> kshitijups2@gmail.com</p>
+                    <p><i class="fas fa-phone"></i> +91 7007033750</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Rajatalab, Varanasi, UP - 221307</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; A product by SHIVA TECH</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const menuToggle = document.getElementById('menuToggle');
+            const navLinks = document.getElementById('navLinks');
+            
+            menuToggle.addEventListener('click', function() {
+                navLinks.classList.toggle('active');
+                menuToggle.innerHTML = navLinks.classList.contains('active') 
+                    ? '<i class="fas fa-times"></i>' 
+                    : '<i class="fas fa-bars"></i>';
+            });
+            
+            // Close mobile menu when clicking on a link
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', () => {
+                    navLinks.classList.remove('active');
+                    menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                });
+            });
+            
+            // Header scroll effect
+            const header = document.querySelector('.header');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+            
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // Add animation to feature cards on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+            
+            // Observe feature cards for animation
+            document.querySelectorAll('.feature-card').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(card);
+            });
+            
+            // Observe step items for animation
+            document.querySelectorAll('.step-content').forEach(step => {
+                step.style.opacity = '0';
+                step.style.transform = 'translateX(30px)';
+                step.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(step);
+            });
+            
+            // View Live Demo button
+            const demoButton = document.querySelector('.hero .cta-button');
+            if (demoButton) {
+                demoButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.getElementById('features').scrollIntoView({ 
+                        behavior: 'smooth' 
+                    });
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

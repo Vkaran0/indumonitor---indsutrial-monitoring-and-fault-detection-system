@@ -1,0 +1,141 @@
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      background:#f4f6fb;
+      color:#222;
+      font-family:Arial, sans-serif;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      background:#e8ecf5;
+      padding:14px 30px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      border-bottom:1px solid #ccd3e2;
+      position:sticky;
+      top:0;
+      z-index:99;
+    }
+    .brand { font-size:20px; font-weight:bold; color:#0277bd; }
+    .nav-right { display:flex; gap:10px; align-items:center; }
+
+    .nav-state {
+      font-size:14px;
+      padding:4px 12px;
+      border-radius:20px;
+      background:#dfe5f2;
+      border:1px solid #bbc4d9;
+    }
+
+    .nav-error-btn {
+      display:none;
+      padding:6px 15px;
+      background:#ff5252;
+      color:#fff;
+      border:none;
+      border-radius:18px;
+      cursor:pointer;
+      animation:pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform:scale(1); box-shadow:0 0 8px #ff5252; }
+      50% { transform:scale(1.07); box-shadow:0 0 16px #ff5252; }
+      100% { transform:scale(1); box-shadow:0 0 8px #ff5252; }
+    }
+
+    /* CONTAINER */
+    .container { width:92%; max-width:1200px; margin:20px auto; }
+
+    .section {
+      background:#fff;
+      margin-bottom:22px;
+      padding:20px;
+      border-radius:14px;
+      border:1px solid #d4d8e5;
+      box-shadow:0 0 18px rgba(0,0,0,0.08);
+    }
+
+    .section h2 { margin-bottom:8px; color:#0277bd; }
+    .section small { opacity:0.7; font-size:13px; }
+
+    /* SUMMARY */
+    .summary-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:16px;
+      margin-top:12px;
+    }
+
+    .summary-card {
+      background:#f3f5fa;
+      border:1px solid #cdd3e2;
+      padding:14px;
+      border-radius:14px;
+    }
+
+    .summary-label { opacity:0.7; font-size:13px; }
+    .summary-value { margin-top:4px; font-size:20px; font-weight:bold; }
+
+    .badge {
+      padding:3px 8px;
+      border-radius:14px;
+      font-size:12px;
+      margin-left:6px;
+      color:#fff;
+    }
+    .badge-normal { background:#4caf50; }
+    .badge-fault { background:#f44336; }
+
+    /* SENSOR GRID */
+    .sensor-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+      gap:14px;
+      margin-top:10px;
+    }
+    .sensor-card {
+      background:#f3f5fa;
+      border:1px solid #cdd3e2;
+      padding:14px;
+      border-radius:14px;
+    }
+    .sensor-name { opacity:0.7; font-size:13px; }
+    .sensor-value { font-size:22px; font-weight:bold; }
+
+    /* THRESHOLDS */
+    .threshold-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+      gap:14px;
+      margin-top:10px;
+    }
+
+    .threshold-item input {
+      width:100%;
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid #b8bfd1;
+      background:#fff;
+      color:#000;
+    }
+
+    button {
+      padding:8px 16px;
+      border:none;
+      border-radius:20px;
+      cursor:pointer;
+      font-weight:bold;
+      margin-top:10px;
+    }
+    .btn-primary { background:#2196f3; color:#fff; }
+    .btn-secondary { background:#e0e4ef; color:#222; }
+    .btn-danger { background:#ff5252; color:#fff; }
+
+    .error-list {
+      margin-top:8px;
+      padding-left:18px;
+      font-size:13px;
+    }
